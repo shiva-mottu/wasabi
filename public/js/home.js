@@ -7,8 +7,7 @@ function init(){
     $( "#formData" ).submit(function( event ) {
         event.preventDefault();
         let n=0;
-        document.getElementById("progressbar").classList.remove('hidden');
-        document.getElementById("info").classList.remove('hidden');
+        
         document.getElementById("upload_progressbar").classList.remove('hidden');
 
         document.getElementById("playerInfo").classList.add('hidden');
@@ -16,9 +15,7 @@ function init(){
         document.getElementById("file_status1").classList.add('hidden');
         document.getElementById("file_status2").classList.add('hidden');
 
-        var interval = setInterval(function() {
-            progress()
-        }, 1500);
+        
     
         function progress() {
             if (n <= 98) {
@@ -63,18 +60,24 @@ function init(){
                 }
             }
         }
-
+        
+        
         axios.post('/formUpload',formData,contentType)
-        .then(function (response) {
-            result = response.data;
-            if(result.status)
-                FolderChecking(interval,result.folderName,result.renamedFileName)
-            
+                    .then(function (response) {
+                        result = response.data;
+                        if(result.status){
+                        document.getElementById("progressbar").classList.remove('hidden');
+                        document.getElementById("info").classList.remove('hidden');
+                        var interval = setInterval(function() {
+                                progress()
+                            }, 1500);
+                            FolderChecking(interval,result.folderName,result.renamedFileName)
+                        }
+                        
         })
         .catch(function (error) {
-            console.log(error);
+             console.log(error);
         });
-
     });
 
     

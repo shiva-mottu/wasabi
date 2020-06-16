@@ -1,15 +1,17 @@
-var express = require("express");
+const express = require("express");
+const router = express.Router();
 const fs = require("fs");
-let fsExtra = require("fs-extra");
-
+const fsExtra = require("fs-extra");
 const youtubedl = require('youtube-dl');
-const ytdl = require('ytdl-core');
-
-var multer  = require('multer');
+const multer  = require('multer');
 const  path = require("path");
-const { exec } = require('child_process');
-
 const uploadFiles = "./public/songs/";
+TRACKS_PATH = "./public/multitrack/";
+
+var converter = require('video-converter');
+converter.setFfmpegPath("./ffmpeg/bin/ffmpeg.exe", function(err) {
+  if (err) throw err;
+});
 
 var storage = multer.diskStorage({
     destination: uploadFiles,
@@ -21,11 +23,6 @@ var storage = multer.diskStorage({
     }
 }) 
 var upload = multer({ storage: storage }).single("musicFile") 
-
-var router = express.Router();
-
-TRACKS_PATH = "./public/multitrack/";
-
 
 router.get("/",function(req,res){
     res.render('index');
@@ -55,59 +52,65 @@ upload(req, res, function (err) {
       if(typeof(req.file) == "undefined"){
 
         console.log(req.body);
+        
+        var videoName = "";
+        var video = youtubedl(link)
 
-        let fileName = "";
-        let splitName = [""];
+        video.on('error', function error (err) {
+          console.log(err.stack)
+        })
 
-        var videoReadableStream = ytdl(link, { filter: 'audioonly'});
+        var size = 0
+        video.on('info', function (info) {
+          size = info.size
+          videoName = info._filename
+          console.log(videoName)
+          var output = path.resolve(__dirname,uploadFiles+info._filename)
+          video.pipe(fs.createWriteStream(output))
+        })
 
-        ytdl.getInfo(link, function(err, info){
-              var videoName = info.title.replace(/[^a-zA-Z0-9]/g, "").toString('ascii');
-              folderName = videoName +"_"+Date.now()
-              fileName = folderName+ '.mp3'
+        var pos = 0
+        video.on('data', function data (chunk) {
+          pos += chunk.length
+          // `size` should not be 0 here.
+          if (size) {
+            var percent = ((pos / size) * 100).toFixed(2)
+            process.stdout.cursorTo(0)
+            process.stdout.clearLine(1)
+            process.stdout.write('File downloading status : '+percent + '%')
 
-              var videoWritableStream = fs.createWriteStream(uploadFiles+fileName); 
+            if(percent == 100){
+              var tempFileName = videoName.split(".mp4")[0]
+              var fname = tempFileName.replace(/[^a-zA-Z0-9]/g, "").toString('ascii');
+              fname = fname +"_"+Date.now()
+              var fileName = fname+ '.mp3'
 
-              var stream = videoReadableStream.pipe(videoWritableStream);
+              console.log("\n FileName : "+fileName);
 
-              stream.on('finish', function() {
+              // convert mp4 to mp3
+              converter.convert(uploadFiles+videoName, uploadFiles+fileName , function(err) {
+                if (err) throw err;
+                console.log("\n File download completed...");
+                ChildProcessScript(fileName,stems);
 
-                console.log("file download finished..");
-
-                ChildProcessScript(fileName,stems)
-
+                try {
+                  fs.unlinkSync(uploadFiles+videoName)
+                  //file removed
+                } catch(err) {
+                  console.error(err)
+                }
+                
                 res.send({
                   "status":true,
                   originalFileName : fileName,
                   renamedFileName : fileName,
-                  folderName : folderName
+                  folderName : fname
                 });
-              });              
-        });
-                
-        /*youtubedl.exec(link, ['-x', '--audio-format', "mp3" ,"-o","/spleeter/songs/%(title)s_"+Date.now()+".%(ext)s","--restrict-filenames",`--unhandled-rejections=strict`], {}, function(err, output) {
-          if (err) throw err
-          
-              console.log(output.join('\n'))
-              for(var i=0;i<output.length;i++){
-                  if(output[i].startsWith("[ffmpeg] Destination:")){
-                    var str = output[i].split("[ffmpeg] Destination:")[1]
-                    fileName = str.split("songs\\")[1];
-                    splitName = fileName.split(path.extname(fileName))
-                    console.log("fileName :"+fileName);
-                  }
-              }
-
-              ChildProcessScript(fileName,stems)
-
-              res.send({
-                "status":true,
-                originalFileName : fileName,
-                renamedFileName : fileName,
-                folderName : splitName[0]
               });
+            }
 
-        });*/
+          }
+        })
 
       }else{
         console.log(req.file);
@@ -129,37 +132,7 @@ upload(req, res, function (err) {
 });
 
 const ChildProcessScript = function(fileName,stems){
-  //console.log("fileName :: "+ fileName  +" :: stems :: "+stems)
-  //spleeter_cmd = "python -m spleeter separate -i spleeter/songs/"+ fileName +" -p spleeter:"+stems+"stems -o public/multitrack"
-
-  /*const ls = exec(spleeter_cmd, function (error, stdout, stderr) {
-    if (error) {
-      console.log(error.stack);
-      console.log('Error code: '+error.code);
-      console.log('Signal received: '+error.signal);
-    }
-    console.log('Child Process STDOUT: '+stdout);
-    console.log('Child Process STDERR: '+stderr);
-  });
-  
-  ls.on('exit', function (code) {
-    console.log('Child process exited with exit code '+code);
-  });*/
-
-/*const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-
-async function spleeter() {
-  const { stdout, stderr } = await exec(spleeter_cmd);
-  console.log('stdout:', stdout);
-  console.error('stderr:', stderr);
-}
-spleeter();
-*/
-
 const { spawn } = require('child_process');
-
-
 const node = spawn("python",["./spleeter_python.py",fileName,stems]);
 node.stdout.on('data', (data) => {
   console.log("stdout:"+ data.toString());
@@ -168,27 +141,6 @@ node.stdout.on('data', (data) => {
 node.stderr.on('data', (data) => {
   console.log("stderr:"+ data.toString());
 });
-
-
-
-/*
-cmd =  [ "-m", "spleeter","separate" ,"-i", "spleeter/songs/"+ fileName,"-p","spleeter:"+stems+"stems" ,"-o", "output"]
-console.log(cmd)
-const node = spawn("python",cmd );
-
-node.stdout.on('data', (data) => {
-  console.log('stdout :'+data);
-});
-
-node.stderr.on('data', (data) => {
-  console.error('stderr: '+data);
-});
-
-node.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
-});*/
-
-
 }
 
 router.get("/checkOutputFolder", async (req, res) => {
@@ -327,7 +279,5 @@ router.get("/track", async (req, res) => {
         resolve(directoryObject);
       })
     );
-  
-
 
 module.exports = router;

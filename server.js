@@ -28,5 +28,5 @@ app.use(routes);
 // launch the http server on given port
 server.listen(PORT || 3000, addrIP || "127.0.0.1", () => {
 	const addr = server.address();
-	console.log("Web server listening at", addr.address + ":" + addr.port);
+	console.log(`Server running at http://${addr.address}:${addr.port}/`);
 });
