@@ -14,6 +14,7 @@ function init(){
         
         document.getElementById("file_status1").classList.add('hidden');
         document.getElementById("file_status2").classList.add('hidden');
+        document.getElementById("dropdown_div").classList.add('hidden');
 
         
     
@@ -181,10 +182,10 @@ function init(){
                     clearInterval(myVar);
                     document.getElementById("playerInfo").classList.remove('hidden');
                     $("#musicUrl").attr("src", "/mt5Player?name="+data.name);
-                    //$('#guitarUrl').attr("src","https://wasabi.i3s.unice.fr/dynamicPedalboard/?bank=Blues&preset=Michel1");
-                    
-                    //$('#guitarUrl').attr("src","https://mainline.i3s.unice.fr/Wasabi-Pedalboard/#");
-
+                
+                    $("#musicFile").val('');
+                    document.getElementById("file_status1").classList.add('hidden');
+                    document.getElementById("file_status2").classList.add('hidden');
                     clearInterval(interval);
                     getTracks(data.name);
                     document.getElementById("progressbar").classList.add('hidden');

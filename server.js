@@ -10,7 +10,7 @@ const middlewares = [
 var app = express(),http = require("http"),server = http.createServer(app);
 
 // Config
-const PORT = process.env.PORT,addrIP = process.env.IP;
+const PORT = 5000;
 
 // Parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.urlencoded({ limit: '50mb',extended: true }))
@@ -18,7 +18,7 @@ app.use(express.urlencoded({ limit: '50mb',extended: true }))
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
-app.set("port",process.env.PORT || 3000);
+app.set("port",PORT);
 
 app.set("views",path.join(__dirname,"views"));
 app.set("view engine","ejs");
@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(routes);
 
 // launch the http server on given port
-server.listen(PORT || 3000, addrIP || "127.0.0.1", () => {
+server.listen(PORT, () => {
 	const addr = server.address();
-	console.log(`Server running at http://${addr.address}:${addr.port}/`);
+	console.log(`Server running at port ${addr.port}/`);
 });
