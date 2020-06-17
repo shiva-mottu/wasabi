@@ -1,27 +1,16 @@
-# Spleeter tool and Web audio player integration
+# Integration of Wasabi project tools into a unified web platform
 
 
-A multitrack web Player
 Online demo at http://www.shivamottu.in.
 
-MT5 is a sort of jukebox like multitrack player that has been developed for musicians who like to study a song track by track, or mute some tracks and play along it.
-
-In order to run it, you will need nodeJS and some node modules. Just run npm install to download the modules.
-
-Then look at the server.js file, you may want to change the default port value. Look at lines:
-
-// Config
-var PORT = 5000,
-TRACKS_PATH = './client/multitrack/'
-
-And change port and IP, for example, use something like:
-// Config
-var PORT = '8081',
-TRACKS_PATH = './public/multitrack/',
-addrIP = '127.0.0.1';
-Then run npm install and then node server.js and open http://localhost:8081 on a web browser. Then select any song from local machine or youtube video link.
-
-The multitrack songs are located in the directory assigned to TRACK_PATH, this is by default public/multitrack, and a multitrack song is just a directory with files in it, corresponding to the tracks. Just create new dir with mp3, ogg, wav files and reload the page, you will be able to play new songs.
+A guitar teacher wants to work on a song for the Rock class
+He chooses a song from the local machine or Youtube video source link.
+select to stem size
+	Vocals (singing voice) / accompaniment separation (2 stems).
+	Vocals / drums / bass / other separation (4 stems).
+	Vocals / drums / bass / piano / other separation (5 stems).
+Separate .wav tracks.
+They can plug their guitar or midi keyboard on their computer, and without any installation, just with the WebApp, play over the song to work.
 
 <img src="https://github.com/deezer/spleeter/raw/master/images/spleeter_logo.png" height="80" />
 
