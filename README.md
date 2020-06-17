@@ -3,14 +3,16 @@
 
 Online demo at http://www.shivamottu.in.
 
-#A guitar teacher wants to work on a song for the Rock class
-#He chooses a song from the local machine or Youtube video source link.
-#select to stem size
-	#Vocals (singing voice) / accompaniment separation (2 stems).
-	#Vocals / drums / bass / other separation (4 stems).
-	#Vocals / drums / bass / piano / other separation (5 stems).
-#Separate .wav tracks.
-#They can plug their guitar or midi keyboard on their computer, and without any installation, just with the WebApp, play over the song to work.
+
+```bash
+A guitar teacher wants to work on a song for the Rock class
+He chooses a song from the local machine or Youtube video source link.
+select to stem size
+	Vocals (singing voice) / accompaniment separation (2 stems).
+	Vocals / drums / bass / other separation (4 stems).
+	Vocals / drums / bass / piano / other separation (5 stems).
+Separate .wav tracks.
+They can plug their guitar or midi keyboard on their computer, and without any installation, just with the WebApp, play over the song to work.
 
 ## Quick start 
 
@@ -18,7 +20,7 @@ Want to try it out ? Just clone the repository and install a
 [Conda](https://github.com/deezer/spleeter/wiki/1.-Installation#using-conda)
 environment to start separating audio file as follows:
 
-```bash
+
 git clone https://github.com/shiva-mottu/wasabi
 npm install .
 npm start
